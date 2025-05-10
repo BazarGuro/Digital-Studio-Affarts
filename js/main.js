@@ -86,3 +86,25 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(error => console.error('Ошибка загрузки данных:', error));
 });
+
+// Динамический подсчёт товаров по категориям
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('data/data.json');
+    const products = await response.json();
+
+    const typeCounts = {};
+    products.forEach(product => {
+      product.type.forEach(t => {
+        typeCounts[t] = (typeCounts[t] || 0) + 1;
+      });
+    });
+
+    document.querySelectorAll('input[name="type"]').forEach(checkbox => {
+      const countElement = checkbox.closest('.custom-checkbox').querySelector('.custom-checkbox__count');
+      countElement.textContent = typeCounts[checkbox.value] || 0;
+    });
+  } catch (error) {
+    console.error('Ошибка загрузки данных:', error);
+  }
+});
