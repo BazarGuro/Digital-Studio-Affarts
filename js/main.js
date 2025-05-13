@@ -36,9 +36,10 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Отрисовка карточек
+// Отрисовка карточек и функционал корзины
 document.addEventListener('DOMContentLoaded', () => {
   let productsData = [];
+  let cartItems = [];
 
   // Функция фильтрации товаров
   const filterProducts = (products) => {
@@ -88,18 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
     list.innerHTML = '';
 
     products.forEach(item => {
+      // Исправляем путь к изображению, убирая '../' из пути
+      const imagePath = item.image.replace('../', '');
       const cardHTML = `
         <li class="catalog__item">
           <div class="product-card">
             <div class="product-card__visual">
-              <img class="product-card__img" src="${item.image}" height="436" width="290" alt="${item.name}">
+              <img class="product-card__img" src="${imagePath}" height="436" width="290" alt="${item.name}">
               <div class="product-card__more">
-                <a href="#" class="product-card__link btn btn--icon">
+                <button data-id="${item.id}" class="product-card__link btn btn--icon add-to-cart-btn">
                   <span class="btn__text">В корзину</span>
                   <svg width="24" height="24" aria-hidden="true">
                     <use xlink:href="images/sprite.svg#icon-basket"></use>
                   </svg>
-                </a>
+                </button>
                 <a href="#" class="product-card__link btn btn--secondary">
                   <span class="btn__text">Подробнее</span>
                 </a>
@@ -126,6 +129,107 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       list.insertAdjacentHTML('beforeend', cardHTML);
     });
+
+    // Добавляем обработчики для кнопок "В корзину"
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const productId = button.dataset.id;
+        addToCart(productId);
+      });
+    });
+  };
+
+  // Функция добавления товара в корзину
+  const addToCart = (productId) => {
+    const product = productsData.find(item => item.id.toString() === productId);
+    if (!product) return;
+
+    cartItems.push(product);
+    updateCartUI();
+  };
+
+  // Функция обновления интерфейса корзины
+  const updateCartUI = () => {
+    const cartCount = document.querySelector('.header__user-count');
+    const basketList = document.querySelector('.basket__list');
+    const basketEmptyBlock = document.querySelector('.basket__empty-block');
+    const basketLink = document.querySelector('.basket__link');
+
+    // Обновляем счетчик товаров
+    cartCount.textContent = cartItems.length;
+
+    // Очищаем список товаров в корзине
+    basketList.innerHTML = '';
+
+    // Показываем/скрываем блок пустой корзины
+    if (cartItems.length === 0) {
+      basketEmptyBlock.style.display = 'block';
+      if (basketLink) basketLink.style.display = 'none';
+    } else {
+      basketEmptyBlock.style.display = 'none';
+      if (basketLink) basketLink.style.display = 'block';
+
+      // Добавляем товары в корзину
+      cartItems.forEach(item => {
+        // Исправляем путь к изображению, убирая '../' из пути
+        const imagePath = item.image.replace('../', '');
+        const cartItemHTML = `
+          <li class="basket__item" data-id="${item.id}">
+            <div class="basket__img">
+              <img src="${imagePath}" alt="Фотография товара" height="60" width="60">
+            </div>
+            <span class="basket__name">${item.name}</span>
+            <span class="basket__price">${item.price.new} руб</span>
+            <button class="basket__close" type="button">
+              <svg class="main-menu__icon" width="24" height="24" aria-hidden="true">
+                <use xlink:href="images/sprite.svg#icon-close"></use>
+              </svg>
+            </button>
+          </li>
+        `;
+        basketList.insertAdjacentHTML('beforeend', cartItemHTML);
+      });
+
+      // Добавляем обработчики для кнопок удаления товара
+      document.querySelectorAll('.basket__close').forEach(button => {
+        button.addEventListener('click', () => {
+          const basketItem = button.closest('.basket__item');
+          const productId = basketItem.dataset.id;
+          removeFromCart(productId);
+          // Удаляем элемент из DOM
+          basketItem.remove();
+        });
+      });
+    }
+  };
+
+  // Функция удаления товара из корзины
+  const removeFromCart = (productId) => {
+    const index = cartItems.findIndex(item => item.id.toString() === productId);
+    if (index !== -1) {
+      cartItems.splice(index, 1);
+      updateCartUI();
+    }
+  };
+
+  // Инициализация корзины
+  const initializeCart = () => {
+    const cartButton = document.querySelector('.header__user-btn');
+    const basket = document.querySelector('.basket');
+
+    // Обработчик клика по кнопке корзины
+    if (cartButton && basket) {
+      cartButton.addEventListener('click', () => {
+        basket.classList.toggle('basket--active');
+      });
+    }
+
+    // Инициализация счетчика товаров
+    const cartCount = document.querySelector('.header__user-count');
+    if (cartCount) {
+      cartCount.textContent = '0';
+    }
   };
 
   // Загрузка и инициализация данных
@@ -154,6 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
           renderProducts(filterProducts(productsData));
         });
       }
+
+      // Инициализация корзины
+      initializeCart();
     } catch (error) {
       console.error('Error loading data:', error);
     }
