@@ -89,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
     list.innerHTML = '';
 
     products.forEach(item => {
-      // Исправляем путь к изображению, убирая '../' из пути
       const imagePath = item.image.replace('../', '');
       const cardHTML = `
         <li class="catalog__item">
@@ -130,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
       list.insertAdjacentHTML('beforeend', cardHTML);
     });
 
-    // Добавляем обработчики для кнопок "В корзину"
     document.querySelectorAll('.add-to-cart-btn').forEach(button => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -156,13 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const basketEmptyBlock = document.querySelector('.basket__empty-block');
     const basketLink = document.querySelector('.basket__link');
 
-    // Обновляем счетчик товаров
     cartCount.textContent = cartItems.length;
 
-    // Очищаем список товаров в корзине
     basketList.innerHTML = '';
 
-    // Показываем/скрываем блок пустой корзины
     if (cartItems.length === 0) {
       basketEmptyBlock.style.display = 'block';
       if (basketLink) basketLink.style.display = 'none';
@@ -289,4 +284,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (error) {
     console.error('Ошибка загрузки данных:', error);
   }
+});
+
+// Функционал аккордеона
+document.addEventListener('DOMContentLoaded', () => {
+  const accordionBtns = document.querySelectorAll('.accordion__btn');
+
+  // Функция для закрытия всех аккордеонов
+  const closeAllAccordions = () => {
+    accordionBtns.forEach(btn => {
+      btn.classList.remove('accordion__btn--active');
+    });
+  };
+
+  accordionBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('accordion__btn--active')) {
+        btn.classList.remove('accordion__btn--active');
+      } else {
+        closeAllAccordions();
+        btn.classList.add('accordion__btn--active');
+      }
+    });
+  });
 });
