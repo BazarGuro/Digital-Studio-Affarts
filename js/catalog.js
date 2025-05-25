@@ -222,6 +222,12 @@ function createPagination() {
       currentPage = i;
       displayProducts();
       createPagination();
+
+      // Прокрутка к началу каталога при смене страницы
+      const catalogSection = document.querySelector('.catalog');
+      if (catalogSection) {
+        catalogSection.scrollIntoView({ behavior: 'smooth' });
+      }
     });
 
     paginationItem.appendChild(paginationButton);
