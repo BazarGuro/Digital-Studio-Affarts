@@ -182,6 +182,14 @@ function displayProducts() {
   currentProducts.forEach(product => {
     const productCard = createProductCard(product);
     catalogList.appendChild(productCard);
+
+    // Добавляем обработчик событий для кнопки добавления в корзину
+    const addToCartButton = productCard.querySelector('.product-card__link.btn--icon');
+    addToCartButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Логика добавления товара в корзину
+      console.log('Товар добавлен в корзину:', product.title);
+    });
   });
 
   // Инициализируем всплывающие подсказки для новых карточек
