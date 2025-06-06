@@ -1,4 +1,4 @@
-# digital-studio-affarts
+# Каталог товаров - Briaton
 
 ## Контакты
 
